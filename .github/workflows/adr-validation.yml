@@ -1,137 +1,360 @@
-# =============================================================================
-# Workflow: Validate ADRs
-# =============================================================================
-# Este workflow valida a estrutura e existência de Architecture Decision Records
-# sempre que um Pull Request modificar arquivos na pasta docs/adr/
-# =============================================================================
+name: ADR Validation
 
-name: Validate ADRs
-
-# -----------------------------------------------------------------------------
-# Trigger: Executa em Pull Requests que modificam arquivos de ADR
-# -----------------------------------------------------------------------------
 on:
-    pull_request:
-        paths:
-            - "docs/adr/**"
+  pull_request:
+    paths:
+      - "docs/adr/**"
+      - ".github/workflows/adr-validation.yml"
 
-# -----------------------------------------------------------------------------
-# Jobs
-# -----------------------------------------------------------------------------
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  ADR_PATH: docs/adr
+
 jobs:
-    validate:
-        name: Validate ADR Structure
-        runs-on: ubuntu-latest
+  structural-validation:
+    name: Structural Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        steps:
-            # -----------------------------------------------------------------------
-            # Step 1: Checkout do repositório
-            # -----------------------------------------------------------------------
-            - name: Checkout repository
-              uses: actions/checkout@v4
+      - name: Validate ADR Naming Convention
+        run: |
+          echo "========================================"
+          echo "ADR Naming Convention Validation"
+          echo "========================================"
+          ERRORS=0
+          for file in ${{ env.ADR_PATH }}/*.md; do
+            filename=$(basename "$file")
+            if [[ "$filename" == "0000-template.md" ]] || [[ "$filename" == "README.md" ]]; then
+              echo "Skipping: $filename (excluded)"
+              continue
+            fi
+            if [[ ! "$filename" =~ ^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*\.md$ ]]; then
+              echo "ERROR: Invalid naming: $filename"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "Valid: $filename"
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "FAILED: $ERRORS naming violation(s)"
+            exit 1
+          fi
+          echo "PASSED: All ADR files follow naming convention"
 
-            # -----------------------------------------------------------------------
-            # Step 2: Listar todos os arquivos ADR existentes
-            # -----------------------------------------------------------------------
-            - name: List ADR files
-              run: |
-                  echo "📂 Arquivos encontrados em docs/adr/:"
-                  echo "======================================"
-                  ls -la docs/adr/*.md 2>/dev/null || echo "Nenhum arquivo .md encontrado"
-                  echo ""
+      - name: Validate Required Sections
+        run: |
+          echo "========================================"
+          echo "ADR Required Sections Validation"
+          echo "========================================"
+          REQUIRED_SECTIONS=(
+            "## Metadata"
+            "## Stakeholders"
+            "## Context"
+            "## Problem Statement"
+            "## Decision Drivers"
+            "## Options Considered"
+            "## Decision"
+            "## Consequences"
+            "## Impacts"
+            "## Trade-offs"
+            "## Implementation Plan"
+            "## Success Criteria"
+            "## References"
+          )
+          ERRORS=0
+          for file in ${{ env.ADR_PATH }}/*.md; do
+            filename=$(basename "$file")
+            if [[ "$filename" == "0000-template.md" ]] || [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+            echo "----------------------------------------"
+            echo "Validating: $filename"
+            echo "----------------------------------------"
+            for section in "${REQUIRED_SECTIONS[@]}"; do
+              if ! grep -q "^${section}" "$file"; then
+                echo "ERROR: Missing section: $section"
+                ERRORS=$((ERRORS + 1))
+              else
+                echo "Found: $section"
+              fi
+            done
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "========================================"
+            echo "FAILED: $ERRORS missing section(s)"
+            echo "========================================"
+            exit 1
+          fi
+          echo "========================================"
+          echo "PASSED: All required sections present"
+          echo "========================================"
 
-            # -----------------------------------------------------------------------
-            # Step 3: Verificar existência de ADRs numerados
-            # Padrão esperado: 0001-*.md, 0002-*.md, etc.
-            # Ignora o template (0000-template.md)
-            # -----------------------------------------------------------------------
-            - name: Check for numbered ADRs
-              run: |
-                  echo "🔍 Verificando ADRs numerados..."
-                  echo "================================"
+      - name: Validate Metadata Fields
+        run: |
+          echo "========================================"
+          echo "ADR Metadata Validation"
+          echo "========================================"
+          REQUIRED_METADATA=(
+            "ADR ID"
+            "Title"
+            "Status"
+            "Date"
+            "Author"
+          )
+          VALID_STATUSES=("Proposed" "Accepted" "Superseded" "Discontinued" "Rejected")
+          ERRORS=0
+          for file in ${{ env.ADR_PATH }}/*.md; do
+            filename=$(basename "$file")
+            if [[ "$filename" == "0000-template.md" ]] || [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+            echo "----------------------------------------"
+            echo "Validating metadata: $filename"
+            echo "----------------------------------------"
+            for field in "${REQUIRED_METADATA[@]}"; do
+              if ! grep -qi "$field" "$file"; then
+                echo "ERROR: Missing metadata field: $field"
+                ERRORS=$((ERRORS + 1))
+              else
+                echo "Found: $field"
+              fi
+            done
+            STATUS_LINE=$(grep -i "Status" "$file" | head -1)
+            VALID=0
+            for status in "${VALID_STATUSES[@]}"; do
+              if [[ "$STATUS_LINE" == *"$status"* ]]; then
+                VALID=1
+                echo "Valid status: $status"
+                break
+              fi
+            done
+            if [ $VALID -eq 0 ]; then
+              echo "ERROR: Invalid status in: $STATUS_LINE"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "FAILED: $ERRORS metadata error(s)"
+            exit 1
+          fi
+          echo "PASSED: All metadata fields valid"
 
-                  # Busca arquivos que seguem o padrão NNNN-*.md (exceto 0000-template.md)
-                  ADR_FILES=$(find docs/adr -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-*.md' ! -name '0000-template.md' 2>/dev/null)
+  immutability:
+    name: Immutability Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-                  if [ -z "$ADR_FILES" ]; then
-                    echo "❌ ERRO: Nenhum ADR numerado encontrado!"
-                    echo ""
-                    echo "O repositório deve conter pelo menos um ADR seguindo o padrão:"
-                    echo "  - docs/adr/0001-titulo-descritivo.md"
-                    echo "  - docs/adr/0002-outra-decisao.md"
-                    echo "  - etc."
-                    echo ""
-                    echo "Use o template em docs/adr/0000-template.md para criar novos ADRs."
-                    exit 1
-                  fi
+      - name: Check for Accepted ADR Modifications
+        run: |
+          echo "========================================"
+          echo "ADR Immutability Validation"
+          echo "========================================"
+          echo "Principle: Accepted ADRs are IMMUTABLE."
+          echo "Changes require a new ADR that supersedes the original."
+          echo ""
 
-                  echo "✅ ADRs numerados encontrados:"
-                  echo "$ADR_FILES" | while read -r file; do
-                    echo "  - $(basename "$file")"
-                  done
-                  echo ""
-                  echo "Total: $(echo "$ADR_FILES" | wc -l) ADR(s)"
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          if [ -z "$BASE_REF" ]; then
+            BASE_REF="main"
+          fi
 
-            # -----------------------------------------------------------------------
-            # Step 4: Validar estrutura básica dos ADRs modificados
-            # Verifica se contém seções obrigatórias
-            # -----------------------------------------------------------------------
-            - name: Validate ADR structure
-              run: |
-                  echo "📋 Validando estrutura dos ADRs..."
-                  echo "==================================="
+          MODIFIED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- '${{ env.ADR_PATH }}/*.md' 2>/dev/null || echo "")
 
-                  # Seções obrigatórias que todo ADR deve conter
-                  REQUIRED_SECTIONS=(
-                    "## Metadados"
-                    "## Contexto"
-                    "## Problema"
-                    "## Decisão"
-                    "## Consequências"
-                  )
+          if [ -z "$MODIFIED_FILES" ]; then
+            echo "No ADR files modified in this PR."
+            echo "PASSED: Immutability check complete"
+            exit 0
+          fi
 
-                  VALIDATION_FAILED=0
+          VIOLATIONS=0
 
-                  # Itera sobre todos os ADRs numerados (exceto template)
-                  for file in docs/adr/[0-9][0-9][0-9][0-9]-*.md; do
-                    # Ignora o template
-                    if [[ "$(basename "$file")" == "0000-template.md" ]]; then
-                      continue
-                    fi
-                    
-                    if [ -f "$file" ]; then
-                      echo ""
-                      echo "📄 Validando: $(basename "$file")"
-                      
-                      FILE_VALID=1
-                      for section in "${REQUIRED_SECTIONS[@]}"; do
-                        if ! grep -q "$section" "$file"; then
-                          echo "  ❌ Seção ausente: $section"
-                          FILE_VALID=0
-                          VALIDATION_FAILED=1
-                        fi
-                      done
-                      
-                      if [ $FILE_VALID -eq 1 ]; then
-                        echo "  ✅ Todas as seções obrigatórias presentes"
-                      fi
-                    fi
-                  done
+          for file in $MODIFIED_FILES; do
+            filename=$(basename "$file")
+            
+            if [[ "$filename" == "0000-template.md" ]] || [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+            
+            if git show origin/$BASE_REF:"$file" &>/dev/null; then
+              MAIN_STATUS=$(git show origin/$BASE_REF:"$file" | grep -i "Status" | head -1 || echo "")
+              
+              if [[ "$MAIN_STATUS" == *"Accepted"* ]]; then
+                echo "VIOLATION: Attempt to modify accepted ADR: $filename"
+                echo "  Accepted ADRs are immutable per governance policy."
+                echo "  To change this decision, create a new ADR that supersedes it."
+                VIOLATIONS=$((VIOLATIONS + 1))
+              else
+                echo "OK: $filename (Status is not Accepted)"
+              fi
+            else
+              echo "OK: $filename (New ADR)"
+            fi
+          done
 
-                  echo ""
-                  if [ $VALIDATION_FAILED -eq 1 ]; then
-                    echo "❌ Validação falhou! Corrija as seções ausentes."
-                    exit 1
+          if [ $VIOLATIONS -gt 0 ]; then
+            echo "========================================"
+            echo "FAILED: $VIOLATIONS immutability violation(s)"
+            echo "========================================"
+            echo ""
+            echo "Resolution:"
+            echo "1. Revert changes to accepted ADR(s)"
+            echo "2. Create a new ADR proposing the change"
+            echo "3. Add Supersedes: ADR-NNNN in the new ADR"
+            exit 1
+          fi
+
+          echo "========================================"
+          echo "PASSED: No immutability violations"
+          echo "========================================"
+
+  supersession-chain:
+    name: Supersession Chain Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Supersession References
+        run: |
+          echo "========================================"
+          echo "ADR Supersession Chain Validation"
+          echo "========================================"
+          ERRORS=0
+          for file in ${{ env.ADR_PATH }}/*.md; do
+            filename=$(basename "$file")
+            if [[ "$filename" == "0000-template.md" ]] || [[ "$filename" == "README.md" ]]; then
+              continue
+            fi
+            SUPERSEDES=$(grep -i "Supersedes" "$file" | head -1 || echo "")
+            if [ -n "$SUPERSEDES" ]; then
+              REF_ID=$(echo "$SUPERSEDES" | grep -oE '[0-9]{4}' | head -1)
+              if [ -n "$REF_ID" ]; then
+                REF_FILE=$(find ${{ env.ADR_PATH }} -maxdepth 1 -name "${REF_ID}-*.md" | head -1)
+                if [ -z "$REF_FILE" ]; then
+                  echo "ERROR: $filename supersedes ADR-$REF_ID but file not found"
+                  ERRORS=$((ERRORS + 1))
+                else
+                  REF_STATUS=$(grep -i "Status" "$REF_FILE" | head -1 || echo "")
+                  if [[ "$REF_STATUS" != *"Superseded"* ]]; then
+                    echo "WARNING: $filename supersedes ADR-$REF_ID but status is not Superseded"
+                    echo "  Please update $(basename "$REF_FILE") status to Superseded"
                   else
-                    echo "✅ Todos os ADRs estão estruturalmente válidos!"
+                    echo "Valid: $filename -> ADR-$REF_ID"
                   fi
+                fi
+              fi
+            fi
+          done
+          if [ $ERRORS -gt 0 ]; then
+            echo "========================================"
+            echo "FAILED: $ERRORS supersession error(s)"
+            echo "========================================"
+            exit 1
+          fi
+          echo "========================================"
+          echo "PASSED: Supersession chains valid"
+          echo "========================================"
 
-            # -----------------------------------------------------------------------
-            # Step 5: Resumo final
-            # -----------------------------------------------------------------------
-            - name: Validation summary
-              run: |
-                  echo ""
-                  echo "======================================"
-                  echo "✅ Validação de ADRs concluída com sucesso!"
-                  echo "======================================"
+  generate-index:
+    name: Generate ADR Index
+    runs-on: ubuntu-latest
+    needs: [structural-validation, immutability, supersession-chain]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Generate ADR Index
+        run: |
+          echo "========================================"
+          echo "Generating ADR Index"
+          echo "========================================"
+
+          INDEX_FILE="${{ env.ADR_PATH }}/README.md"
+
+          cat > "$INDEX_FILE" << 'HEADER'
+          # Architecture Decision Records (ADR) Index
+
+          > **Auto-generated index** - Updated automatically by CI/CD pipeline.
+
+          ---
+
+          ## ADR Registry
+
+          | Number | Title | Status |
+          |--------|-------|--------|
+          HEADER
+
+          for file in ${{ env.ADR_PATH }}/[0-9][0-9][0-9][0-9]-*.md; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              number="${filename:0:4}"
+              
+              if [[ "$number" == "0000" ]]; then
+                continue
+              fi
+              
+              title=$(grep -m1 "^# " "$file" | sed 's/^# //' | sed 's/ADR-[0-9]*: //' || echo "Untitled")
+              status=$(grep -i "Status" "$file" | head -1 | grep -oE 'Proposed|Accepted|Superseded|Discontinued|Rejected' || echo "Unknown")
+              
+              echo "| [ADR-${number}](${filename}) | ${title} | ${status} |" >> "$INDEX_FILE"
+            fi
+          done
+
+          cat >> "$INDEX_FILE" << 'FOOTER'
+
+          ---
+
+          ## Status Legend
+
+          | Status | Description |
+          |--------|-------------|
+          | Proposed | Under review, open for feedback |
+          | Accepted | Approved and in effect (immutable) |
+          | Superseded | Replaced by a newer ADR |
+          | Discontinued | No longer applicable |
+          | Rejected | Reviewed and declined |
+
+          ---
+
+          ## Quick Links
+
+          - [ADR Template](0000-template.md)
+          - [Meta-ADR: Adoption Decision](0001-adopt-adrs.md)
+
+          ---
+
+          *Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
+          FOOTER
+
+          echo "Index generated successfully"
+          cat "$INDEX_FILE"
+
+      - name: Commit Index Update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          git add ${{ env.ADR_PATH }}/README.md
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs(adr): auto-update ADR index"
+            git push
+            echo "Index committed and pushed"
+          fi

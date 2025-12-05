@@ -1,181 +1,387 @@
-# Architecture Decision Records (ADR) Template
+# Architecture Decision Records (ADR) Repository Template
 
-[![Validate ADRs](https://github.com/Rafazara/tech-architecture-adr/actions/workflows/adr-validation.yml/badge.svg)](https://github.com/Rafazara/tech-architecture-adr/actions/workflows/adr-validation.yml)
+[![ADR Validation](https://github.com/your-org/tech-architecture-adr/actions/workflows/adr-validation.yml/badge.svg)](https://github.com/your-org/tech-architecture-adr/actions/workflows/adr-validation.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> A generic and reusable template for implementing Architecture Decision Records in technology organizations.
-
----
-
-## About This Repository
-
-This repository provides a **complete, ready-to-use template** for Architecture Decision Records (ADRs), designed to be adopted by any organization seeking to establish technical governance and structured documentation of architectural decisions.
-
-### What Are ADRs?
-
-Architecture Decision Records are documents that capture significant technical decisions along with their context, alternatives considered, and consequences. They serve as institutional memory, facilitate onboarding of new members, and promote transparency in architecture decisions.
-
-### Why Use This Template?
-
-| Benefit | Description |
-|---------|-------------|
-| **Ready to use** | Complete structure with template, examples, and automation |
-| **Generic and neutral** | No dependencies on specific technologies or processes |
-| **Standards-based** | Follows industry best practices (Michael Nygard, ThoughtWorks) |
-| **Automated** | Includes CI workflow for ADR validation |
-| **Documented** | Complete usage and contribution guides |
+> **Enterprise-Grade ADR Framework** — A production-ready template for implementing Architecture Decision Records following the Michael Nygard standard with Big Tech governance extensions.
 
 ---
 
-## Template Contents
+## What is This Repository?
 
-This repository includes all artifacts needed to implement ADRs:
+This repository provides a **complete, battle-tested framework** for implementing Architecture Decision Records (ADRs) in your organization. It includes:
 
-### 📄 Official Template
+- 📋 **Comprehensive ADR Template** — Enterprise-grade template with all necessary sections
+- 📖 **Meta-ADR (ADR-0001)** — Documents the decision to adopt ADRs (use as reference)
+- 📚 **Operational Guide** — Complete README with governance, workflow, and best practices
+- ⚙️ **CI/CD Validation** — GitHub Actions workflow for automated compliance checking
+- 🏗️ **Directory Structure** — Ready-to-use folder organization
 
-File `docs/adr/0000-template.md` with complete structure and explanatory comments for each section. Includes:
+---
 
-- Metadata and stakeholders
-- Context, problem statement, and decision drivers
-- Options considered with pros and cons
-- Decision and rationale
-- Consequences, impacts, and trade-offs
-- Implementation plan and success criteria
+## Quick Start
 
-### 📋 Meta-ADR
+### Option 1: Use as GitHub Template
 
-File `docs/adr/0001-adotar-adrs.md` serving as a real example that documents the decision to adopt ADRs itself. Can be adapted to each organization's reality.
+1. Click **"Use this template"** button on GitHub
+2. Create your new repository
+3. Customize the template for your organization
 
-### 📚 Index and Guide
+### Option 2: Clone and Adapt
 
-File `docs/adr/README.md` with:
+```bash
+# Clone the repository
+git clone https://github.com/your-org/tech-architecture-adr.git my-adr-repo
 
-- Table of active ADRs
-- Step-by-step guide for creating new ADRs
-- Lifecycle and status explanation
-- Best practices and conventions
+# Navigate to the directory
+cd my-adr-repo
 
-### ⚙️ Validation Workflow
+# Remove Git history and initialize fresh
+rm -rf .git
+git init
+git add .
+git commit -m "Initial ADR repository setup"
+```
 
-File `.github/workflows/adr-validation.yml` with GitHub Actions that:
+### Option 3: Copy Individual Files
 
-- Runs automatically on Pull Requests
-- Validates existence of numbered ADRs
-- Checks basic structure (required sections)
-- Provides clear feedback in case of errors
+Copy only what you need into your existing repository's `docs/adr/` directory:
+
+```bash
+mkdir -p docs/adr
+cp path/to/template/docs/adr/0000-template.md docs/adr/
+cp path/to/template/docs/adr/README.md docs/adr/
+```
 
 ---
 
 ## Repository Structure
 
-```text
-tech-architecture-adr/
-│
-├── README.md                              # This file
-│
-├── .github/
-│   └── workflows/
-│       └── adr-validation.yml             # CI validation workflow
-│
-└── docs/
-    └── adr/
-        ├── README.md                      # ADR index and usage guide
-        ├── 0000-template.md               # Official template for new ADRs
-        ├── 0001-adotar-adrs.md            # Meta-ADR: decision to adopt ADRs
-        └── superseded/                    # Superseded/discontinued ADRs
 ```
-
-| Directory/File | Purpose |
-|----------------|---------|
-| `docs/adr/` | Main directory for active ADRs |
-| `docs/adr/superseded/` | Archive for ADRs superseded by subsequent decisions |
-| `.github/workflows/` | Validation automation via GitHub Actions |
+.
+├── README.md                           # This file
+├── docs/
+│   └── adr/
+│       ├── README.md                   # ADR index and operational guide
+│       ├── 0000-template.md            # Canonical ADR template
+│       └── 0001-adopt-adrs.md          # Meta-ADR documenting ADR adoption
+└── .github/
+    └── workflows/
+        └── adr-validation.yml          # CI/CD validation workflow
+```
 
 ---
 
-## How to Use as a Template in Another Project
+## Philosophy & Principles
 
-### Option 1: Use as GitHub Template
+### Why ADRs Matter
 
-1. Click the **"Use this template"** button at the top of the repository
-2. Define the name of the new repository
-3. Clone the created repository
-4. Customize according to the organization's needs
+Traditional documentation answers **"what"** and **"how"**. ADRs answer **"why"**.
 
-### Option 2: Copy Structure Manually
+> "The decision itself is important, but the rationale and context that led to it are equally valuable—if not more so."
+> — Michael Nygard
 
-1. **Clone or download this repository**
+### Core Principles
 
-   ```bash
-   git clone https://github.com/Rafazara/tech-architecture-adr.git
-   cd tech-architecture-adr
-   ```
+| Principle | Description |
+|-----------|-------------|
+| **Immutability** | Accepted ADRs are never modified; changes require new ADRs |
+| **Traceability** | Clear lineage from problem → decision → consequences |
+| **Discoverability** | Engineers find relevant ADRs within 60 seconds |
+| **Low Friction** | Creating an ADR takes < 30 minutes for simple decisions |
+| **Version Control** | ADRs live with the code, reviewed via PRs |
 
-2. **Copy the structure to your project**
+### The Nygard Model
 
-   ```bash
-   # Copy the docs/adr folder to your repository
-   cp -r docs/adr /path/to/your/project/docs/
+This framework implements the Michael Nygard ADR format (2011), enhanced with:
 
-   # Copy the validation workflow
-   cp -r .github /path/to/your/project/
-   ```
+- **Enterprise metadata** (stakeholders, tags, decision scope)
+- **Structured options analysis** (including Option 0: Status Quo)
+- **Risk and impact assessment**
+- **Implementation and rollback planning**
+- **Success criteria with measurable outcomes**
 
-3. **Customize the Meta-ADR**
-   - Edit `docs/adr/0001-adotar-adrs.md` to reflect your organization's context
-   - Adjust stakeholders, dates, and implementation plan
+---
 
-4. **Configure the workflow** (if needed)
-   - Adjust triggers or validations in `.github/workflows/adr-validation.yml`
+## Who Is This For?
 
-### Option 3: Incorporate into Existing Monorepo
+### Primary Audiences
 
-For existing repositories, add only the necessary files:
+| Role | Benefit |
+|------|---------|
+| **Software Architects** | Documented rationale for architectural decisions |
+| **Engineering Managers** | Governance framework for technical decision-making |
+| **Tech Leads** | Template for team-level technical documentation |
+| **Platform Teams** | Standard for organization-wide technical standards |
+| **New Hires** | Onboarding resource for understanding historical decisions |
+
+### Organization Maturity
+
+| Stage | Recommendation |
+|-------|----------------|
+| **Startup (< 20 engineers)** | Start with minimal ADRs; adopt full framework as you scale |
+| **Growth (20-100 engineers)** | Implement full framework; critical for preserving institutional knowledge |
+| **Enterprise (100+ engineers)** | Essential for governance, compliance, and architectural consistency |
+
+---
+
+## When to Use ADRs
+
+### Create an ADR When...
+
+✅ Adopting a new technology, framework, or platform
+✅ Selecting an architectural pattern (microservices, event sourcing, etc.)
+✅ Making breaking API changes
+✅ Establishing security architecture decisions
+✅ Defining data architecture or retention policies
+✅ Choosing infrastructure approaches (cloud provider, Kubernetes, etc.)
+✅ Deprecating or migrating away from existing technology
+
+### Do NOT Create an ADR When...
+
+❌ Fixing bugs
+❌ Minor refactoring (unless it changes architecture)
+❌ Routine dependency updates
+❌ Configuration changes
+❌ Easily reversible decisions
+
+**Heuristic**: If you'll need to explain "why" to someone in 6 months, create an ADR.
+
+---
+
+## ADR Lifecycle
+
+```
+┌──────────┐    Approved    ┌──────────┐
+│ Proposed │───────────────▶│ Accepted │
+└──────────┘                └────┬─────┘
+      │                          │
+      │ Declined                 │ Replaced
+      ▼                          ▼
+┌──────────┐                ┌────────────┐
+│ Rejected │                │ Superseded │
+└──────────┘                └────────────┘
+```
+
+### Status Values
+
+| Status | Meaning |
+|--------|---------|
+| **Proposed** | Under review; open for feedback |
+| **Accepted** | Approved and in effect (**IMMUTABLE**) |
+| **Superseded** | Replaced by newer ADR |
+| **Discontinued** | No longer applicable |
+| **Rejected** | Reviewed and declined |
+
+### Immutability Rule
+
+> **Once an ADR is Accepted, its content cannot be changed.**
+> To modify a decision, create a new ADR that supersedes the original.
+
+This ensures audit trail integrity and reference stability.
+
+---
+
+## Governance
+
+### Decision Authority
+
+| ADR Scope | Approver |
+|-----------|----------|
+| Organization-wide | CTO / VP Engineering / Architecture Owner |
+| Team-wide | Tech Lead / Engineering Manager |
+| Project-specific | Project Architect / Senior Engineer |
+
+### Review Requirements
+
+- **Minimum**: 1 technical reviewer
+- **Recommended**: 2 reviewers for significant decisions
+- **Required for org-wide**: Architecture review board or designated approver
+
+### SLAs
+
+| Stage | Target |
+|-------|--------|
+| Initial review | 48 hours |
+| Feedback resolution | 72 hours |
+| Final approval | 24 hours |
+
+---
+
+## CI/CD Validation
+
+The included GitHub Actions workflow validates:
+
+| Check | Description |
+|-------|-------------|
+| **Naming Convention** | Files follow `NNNN-descriptive-slug.md` format |
+| **Required Sections** | Metadata, Context, Decision, Consequences present |
+| **Metadata Completeness** | ADR ID, Status, Date, Author fields filled |
+| **Status Values** | Only valid statuses (Proposed, Accepted, etc.) |
+| **Immutability** | Accepted ADRs cannot be modified |
+| **Supersession Chains** | References to superseded ADRs are valid |
+
+### Workflow Location
+
+```
+.github/workflows/adr-validation.yml
+```
+
+### Customization
+
+Modify the workflow to match your organization's requirements:
+
+```yaml
+# Adjust required sections
+REQUIRED_SECTIONS=(
+  "## Metadata"
+  "## Context"
+  "## Decision"
+  "## Consequences"
+)
+
+# Add custom validations as needed
+```
+
+---
+
+## Template Overview
+
+The included template (`docs/adr/0000-template.md`) provides:
+
+### Required Sections
+
+| Section | Purpose |
+|---------|---------|
+| **Metadata** | ID, status, dates, stakeholders |
+| **Context** | Business and technical background |
+| **Problem Statement** | Clear articulation of the challenge |
+| **Decision** | What was decided |
+| **Consequences** | Positive, negative, and neutral outcomes |
+
+### Optional Sections (Recommended)
+
+| Section | Purpose |
+|---------|---------|
+| **Decision Drivers** | Prioritized criteria for evaluation |
+| **Options Considered** | All alternatives including status quo |
+| **Rationale** | Why this option was selected |
+| **Risks & Mitigations** | Potential issues and how to address them |
+| **Implementation Plan** | Phases and ownership |
+| **Success Criteria** | Measurable outcomes |
+
+### Enterprise Extensions
+
+| Section | Purpose |
+|---------|---------|
+| **Decision Scope** | Team, Project, Organization-wide |
+| **Stakeholder Matrix** | RACI-style responsibility assignment |
+| **Rollback Plan** | How to reverse if needed |
+| **Long-term Implications** | 2-5 year impact assessment |
+
+---
+
+## Tools & Resources
+
+### Recommended Tools
+
+| Tool | Purpose | Link |
+|------|---------|------|
+| **adr-tools** | CLI for ADR management | [GitHub](https://github.com/npryce/adr-tools) |
+| **Log4brains** | ADR management with web UI | [GitHub](https://github.com/thomvaill/log4brains) |
+| **VS Code** | Markdown editing with preview | [VS Code](https://code.visualstudio.com/) |
+
+### References
+
+1. **Michael Nygard** — [Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
+2. **ThoughtWorks** — [Lightweight Architecture Decision Records](https://www.thoughtworks.com/radar/techniques/lightweight-architecture-decision-records)
+3. **ADR GitHub Organization** — [adr.github.io](https://adr.github.io/)
+4. **MADR Template** — [Markdown Any Decision Records](https://adr.github.io/madr/)
+
+---
+
+## Customization Guide
+
+### Step 1: Organization Details
+
+Update placeholders throughout:
 
 ```bash
-# Create directory structure
-mkdir -p docs/adr/superseded
-mkdir -p .github/workflows
-
-# Download essential files
-curl -o docs/adr/0000-template.md https://raw.githubusercontent.com/Rafazara/tech-architecture-adr/main/docs/adr/0000-template.md
-curl -o docs/adr/README.md https://raw.githubusercontent.com/Rafazara/tech-architecture-adr/main/docs/adr/README.md
-curl -o .github/workflows/adr-validation.yml https://raw.githubusercontent.com/Rafazara/tech-architecture-adr/main/.github/workflows/adr-validation.yml
+# Replace organization references
+find . -type f -name "*.md" -exec sed -i 's/your-org/my-company/g' {} \;
+find . -type f -name "*.md" -exec sed -i 's/Architecture Governance Team/Your Team Name/g' {} \;
 ```
 
----
+### Step 2: Template Sections
 
-## First Steps After Adoption
+Review `docs/adr/0000-template.md` and adjust:
 
-1. **Review the template** (`docs/adr/0000-template.md`) and adjust if needed for the organization's context
+- Add organization-specific sections
+- Remove sections that don't apply
+- Modify examples to match your technology stack
 
-2. **Adapt the Meta-ADR** (`docs/adr/0001-adotar-adrs.md`) with specific information:
-   - Actual stakeholders
-   - Current organizational context
-   - Adjusted implementation plan
+### Step 3: Governance Rules
 
-3. **Communicate the new process** to technical teams
+Update `docs/adr/README.md`:
 
-4. **Start documenting** architectural decisions following the template
+- Define your approval matrix
+- Set appropriate SLAs
+- Customize review requirements
+
+### Step 4: CI/CD Workflow
+
+Modify `.github/workflows/adr-validation.yml`:
+
+- Adjust required sections
+- Add custom validations
+- Configure notifications
 
 ---
 
 ## Contributing
 
-Contributions are welcome! To suggest improvements:
+Contributions to improve this template are welcome!
 
-1. Open an issue describing the suggestion
-2. Or submit a Pull Request with the proposed changes
+### How to Contribute
 
----
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-## References
+### Areas for Contribution
 
-- [Documenting Architecture Decisions - Michael Nygard](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
-- [ADR GitHub Organization](https://adr.github.io/)
-- [Lightweight Architecture Decision Records - ThoughtWorks Tech Radar](https://www.thoughtworks.com/radar/techniques/lightweight-architecture-decision-records)
+- Additional template sections
+- Alternative CI/CD platforms (GitLab CI, Azure DevOps)
+- Localization (translations)
+- Tool integrations
+- Documentation improvements
 
 ---
 
 ## License
 
-This template is made available for free use. Adapt according to your organization's licensing policies.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- **Michael Nygard** — Creator of the ADR concept and format
+- **ThoughtWorks** — Popularizing ADRs through Technology Radar
+- **ADR Community** — adr.github.io contributors
+- **Industry Practitioners** — Engineers who have refined ADR practices
+
+---
+
+## Support
+
+For questions or issues:
+
+- 📖 Check the [FAQ](docs/adr/README.md#faq) in the operational guide
+- 🐛 Open an [issue](https://github.com/your-org/tech-architecture-adr/issues) for bugs or suggestions
+- 💬 Discuss in [Discussions](https://github.com/your-org/tech-architecture-adr/discussions)
+
+---
+
+*Built with ❤️ for engineering teams who value documented decisions.*
