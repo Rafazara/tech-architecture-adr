@@ -12,10 +12,16 @@
 | **ADR ID** | ADR-0001 |
 | **Title** | Adopt Architecture Decision Records (ADRs) for Technical Decision Documentation |
 | **Status** | `Accepted` |
+| **Date** | 2025-01-15 |
+| **Author** | Architecture Governance Team |
+
+### Extended Metadata
+
+| Field | Value |
+|-------|-------|
 | **Decision Scope** | Organization-Wide |
 | **Date Proposed** | 2025-01-15 |
 | **Date Accepted** | 2025-01-15 |
-| **Author(s)** | Architecture Governance Team |
 | **Reviewer(s)** | Engineering Leadership, Principal Engineers |
 | **Approver(s)** | CTO, VP of Engineering |
 | **Tags** | `governance`, `documentation`, `architecture`, `meta-adr`, `foundational` |
@@ -30,18 +36,6 @@
 | **Accountable** | Architecture Governance Team | Process definition, compliance oversight |
 | **Consulted** | Principal Engineers | Technical feasibility, practical adoption |
 | **Informed** | All Engineering Teams | Process awareness, day-to-day compliance |
-
----
-
-## Executive Summary
-
-This ADR establishes Architecture Decision Records (ADRs) as the **canonical method** for documenting significant technical and architectural decisions within the organization. By adopting the Michael Nygard ADR format with enterprise extensions, we create an immutable, auditable, and discoverable record of **why** decisions were made—not just what was decided.
-
-**Key Outcomes:**
-- Immutable decision history for compliance and auditing
-- Reduced architectural drift and technical debt accumulation
-- Accelerated onboarding through decision context preservation
-- Defensible architecture through documented rationale
 
 ---
 
@@ -266,31 +260,6 @@ We adopt **Architecture Decision Records (ADRs)** in **Markdown format**, stored
 
 ---
 
-## Rationale
-
-### Why Option 2 Over Alternatives
-
-| Criterion | Wiki (Opt 1) | ADR/Git (Opt 2) | Enterprise Tool (Opt 3) |
-|-----------|--------------|-----------------|-------------------------|
-| Immutability | ❌ Mutable | ✅ Git-enforced | ⚠️ Depends on config |
-| Cost | ⚠️ License fees | ✅ Free | ❌ $50K-200K/year |
-| Adoption Friction | ✅ Low | ✅ Low | ❌ High |
-| Code Proximity | ❌ Separate | ✅ Same repo | ❌ Separate |
-| Audit Trail | ⚠️ Basic | ✅ Git history | ✅ Built-in |
-| Industry Standard | ❌ No | ✅ Yes | ⚠️ Varies |
-
-### Alignment with Decision Drivers
-
-| Driver | How ADRs Address It |
-|--------|---------------------|
-| Immutability | Git commit history; accepted ADRs never modified |
-| Traceability | Structured sections (Context → Decision → Consequences) |
-| Discoverability | Predictable location (`docs/adr/`); naming convention; README index |
-| Low Friction | Markdown is universal; template provides structure; 15-30 min to author |
-| Version Control | Native Git integration; PR review workflow |
-
----
-
 ## Consequences
 
 ### Positive Consequences
@@ -321,15 +290,45 @@ We adopt **Architecture Decision Records (ADRs)** in **Markdown format**, stored
 
 ---
 
-## Risks and Mitigations
+## Impacts
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| **Low Adoption** | Medium | High | Leadership championing; integrate into code review checklist |
-| **Template Bloat** | Medium | Medium | Periodic template review; distinguish required vs. optional sections |
-| **Analysis Paralysis** | Low | Medium | Time-boxing ADR creation; "good enough" threshold guidance |
-| **Orphaned ADRs** | Medium | Low | Quarterly index review; automated staleness detection |
-| **Tooling Fragmentation** | Low | Low | Standardize on single template; CI validation |
+### Technical Impacts
+
+| Area | Impact | Severity |
+|------|--------|----------|
+| **Development Workflow** | PR-based ADR review integrated into existing Git workflow | Low |
+| **Repository Structure** | New `docs/adr/` directory in each repository | Low |
+| **CI/CD Pipeline** | Optional ADR validation workflow | Low |
+| **Documentation Search** | ADRs indexed alongside code documentation | Medium |
+
+### Organizational Impacts
+
+| Area | Impact | Severity |
+|------|--------|----------|
+| **Engineering Culture** | Shift toward documented decision-making | Medium |
+| **Onboarding Process** | ADR reading added to new hire checklist | Low |
+| **Architecture Reviews** | ADRs become prerequisite for major changes | Medium |
+| **Audit Compliance** | Improved decision traceability for auditors | Positive |
+
+### Resource Impacts
+
+| Resource | Impact |
+|----------|--------|
+| **Time Investment** | 15-30 min per ADR (straightforward decisions) |
+| **Training** | 1-2 hour workshop for engineering teams |
+| **Tooling** | None required (Markdown + Git) |
+
+---
+
+## Trade-offs
+
+| Trade-off | Accepted Compromise | Justification |
+|-----------|---------------------|---------------|
+| **Richness vs. Simplicity** | Plain Markdown over rich wiki | Immutability and version control outweigh formatting flexibility |
+| **Completeness vs. Speed** | Lightweight template over exhaustive documentation | Low friction encourages adoption; detail can be added iteratively |
+| **Centralization vs. Distribution** | ADRs live in each repository | Code proximity outweighs centralized governance dashboard |
+| **Automation vs. Manual** | Manual ADR creation initially | Start simple; automate as volume justifies investment |
+| **Strictness vs. Flexibility** | Required sections with optional extensions | Balance governance compliance with practical usability |
 
 ---
 
@@ -370,28 +369,6 @@ We adopt **Architecture Decision Records (ADRs)** in **Markdown format**, stored
 
 ---
 
-## Rollback Plan
-
-### Trigger Conditions
-
-Rollback should be considered if:
-- ADR adoption rate < 20% after 6 months
-- Average ADR creation time exceeds 2 hours
-- Significant negative feedback from > 50% of engineering teams
-
-### Rollback Procedure
-
-1. **Freeze**: Stop requiring new ADRs
-2. **Archive**: Move existing ADRs to `docs/adr/archive/`
-3. **Evaluate**: Conduct retrospective on adoption failure
-4. **Iterate**: Consider alternative approaches (Option 1 or Option 3)
-
-### Preservation Guarantee
-
-Even if ADR process is discontinued, existing ADRs remain in repository history as historical record.
-
----
-
 ## Success Criteria
 
 | Metric | Baseline | Target | Measurement Method |
@@ -401,28 +378,6 @@ Even if ADR process is discontinued, existing ADRs remain in repository history 
 | **Onboarding Reference** | 0% cite ADRs | > 50% cite ADRs as helpful | New hire survey |
 | **Debate Resolution** | Anecdotal | "See ADR-XXXX" cited in discussions | Slack/meeting observation |
 | **Audit Findings** | Unknown | 0 findings related to decision traceability | Audit reports |
-
----
-
-## Decision Longevity
-
-### Review Commitment
-
-This foundational ADR will be reviewed **12-18 months** after acceptance to assess:
-
-1. **Adoption Metrics**: Are teams creating ADRs consistently?
-2. **Template Fitness**: Is the template appropriate or bloated?
-3. **Tooling Needs**: Should we adopt adr-tools, Log4brains, or custom automation?
-4. **Governance Effectiveness**: Are ADRs achieving their intended purpose?
-
-### Evolution Path
-
-Future enhancements (each requiring their own ADR):
-
-- **ADR-NNNN**: Adopt adr-tools for CLI management
-- **ADR-NNNN**: Integrate ADRs with internal documentation portal
-- **ADR-NNNN**: Implement cross-repository ADR aggregation
-- **ADR-NNNN**: Add automated ADR impact analysis
 
 ---
 
@@ -451,7 +406,76 @@ Future enhancements (each requiring their own ADR):
 
 ---
 
-## Appendix A: Quick Reference Card
+## Appendix A: Extended Analysis
+
+### Executive Summary
+
+This ADR establishes Architecture Decision Records (ADRs) as the **canonical method** for documenting significant technical and architectural decisions within the organization. By adopting the Michael Nygard ADR format with enterprise extensions, we create an immutable, auditable, and discoverable record of **why** decisions were made—not just what was decided.
+
+**Key Outcomes:**
+- Immutable decision history for compliance and auditing
+- Reduced architectural drift and technical debt accumulation
+- Accelerated onboarding through decision context preservation
+- Defensible architecture through documented rationale
+
+### Rationale
+
+#### Why Option 2 Over Alternatives
+
+| Criterion | Wiki (Opt 1) | ADR/Git (Opt 2) | Enterprise Tool (Opt 3) |
+|-----------|--------------|-----------------|-------------------------|
+| Immutability | ❌ Mutable | ✅ Git-enforced | ⚠️ Depends on config |
+| Cost | ⚠️ License fees | ✅ Free | ❌ $50K-200K/year |
+| Adoption Friction | ✅ Low | ✅ Low | ❌ High |
+| Code Proximity | ❌ Separate | ✅ Same repo | ❌ Separate |
+| Audit Trail | ⚠️ Basic | ✅ Git history | ✅ Built-in |
+| Industry Standard | ❌ No | ✅ Yes | ⚠️ Varies |
+
+#### Alignment with Decision Drivers
+
+| Driver | How ADRs Address It |
+|--------|---------------------|
+| Immutability | Git commit history; accepted ADRs never modified |
+| Traceability | Structured sections (Context → Decision → Consequences) |
+| Discoverability | Predictable location (`docs/adr/`); naming convention; README index |
+| Low Friction | Markdown is universal; template provides structure; 15-30 min to author |
+| Version Control | Native Git integration; PR review workflow |
+
+---
+
+## Appendix B: Supplemental Content
+
+### Risks and Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| **Low Adoption** | Medium | High | Leadership championing; integrate into code review checklist |
+| **Template Bloat** | Medium | Medium | Periodic template review; distinguish required vs. optional sections |
+| **Analysis Paralysis** | Low | Medium | Time-boxing ADR creation; "good enough" threshold guidance |
+| **Orphaned ADRs** | Medium | Low | Quarterly index review; automated staleness detection |
+| **Tooling Fragmentation** | Low | Low | Standardize on single template; CI validation |
+
+### Rollback Plan
+
+#### Trigger Conditions
+
+Rollback should be considered if:
+- ADR adoption rate < 20% after 6 months
+- Average ADR creation time exceeds 2 hours
+- Significant negative feedback from > 50% of engineering teams
+
+#### Rollback Procedure
+
+1. **Freeze**: Stop requiring new ADRs
+2. **Archive**: Move existing ADRs to `docs/adr/archive/`
+3. **Evaluate**: Conduct retrospective on adoption failure
+4. **Iterate**: Consider alternative approaches (Option 1 or Option 3)
+
+#### Preservation Guarantee
+
+Even if ADR process is discontinued, existing ADRs remain in repository history as historical record.
+
+### Quick Reference Card
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -488,6 +512,30 @@ Future enhancements (each requiring their own ADR):
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Appendix C: Governance Notes
+
+### Decision Longevity
+
+#### Review Commitment
+
+This foundational ADR will be reviewed **12-18 months** after acceptance to assess:
+
+1. **Adoption Metrics**: Are teams creating ADRs consistently?
+2. **Template Fitness**: Is the template appropriate or bloated?
+3. **Tooling Needs**: Should we adopt adr-tools, Log4brains, or custom automation?
+4. **Governance Effectiveness**: Are ADRs achieving their intended purpose?
+
+#### Evolution Path
+
+Future enhancements (each requiring their own ADR):
+
+- **ADR-NNNN**: Adopt adr-tools for CLI management
+- **ADR-NNNN**: Integrate ADRs with internal documentation portal
+- **ADR-NNNN**: Implement cross-repository ADR aggregation
+- **ADR-NNNN**: Add automated ADR impact analysis
 
 ---
 
