@@ -1,0 +1,137 @@
+# =============================================================================
+# Workflow: Validate ADRs
+# =============================================================================
+# Este workflow valida a estrutura e existência de Architecture Decision Records
+# sempre que um Pull Request modificar arquivos na pasta docs/adr/
+# =============================================================================
+
+name: Validate ADRs
+
+# -----------------------------------------------------------------------------
+# Trigger: Executa em Pull Requests que modificam arquivos de ADR
+# -----------------------------------------------------------------------------
+on:
+    pull_request:
+        paths:
+            - "docs/adr/**"
+
+# -----------------------------------------------------------------------------
+# Jobs
+# -----------------------------------------------------------------------------
+jobs:
+    validate:
+        name: Validate ADR Structure
+        runs-on: ubuntu-latest
+
+        steps:
+            # -----------------------------------------------------------------------
+            # Step 1: Checkout do repositório
+            # -----------------------------------------------------------------------
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # -----------------------------------------------------------------------
+            # Step 2: Listar todos os arquivos ADR existentes
+            # -----------------------------------------------------------------------
+            - name: List ADR files
+              run: |
+                  echo "📂 Arquivos encontrados em docs/adr/:"
+                  echo "======================================"
+                  ls -la docs/adr/*.md 2>/dev/null || echo "Nenhum arquivo .md encontrado"
+                  echo ""
+
+            # -----------------------------------------------------------------------
+            # Step 3: Verificar existência de ADRs numerados
+            # Padrão esperado: 0001-*.md, 0002-*.md, etc.
+            # Ignora o template (0000-template.md)
+            # -----------------------------------------------------------------------
+            - name: Check for numbered ADRs
+              run: |
+                  echo "🔍 Verificando ADRs numerados..."
+                  echo "================================"
+
+                  # Busca arquivos que seguem o padrão NNNN-*.md (exceto 0000-template.md)
+                  ADR_FILES=$(find docs/adr -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-*.md' ! -name '0000-template.md' 2>/dev/null)
+
+                  if [ -z "$ADR_FILES" ]; then
+                    echo "❌ ERRO: Nenhum ADR numerado encontrado!"
+                    echo ""
+                    echo "O repositório deve conter pelo menos um ADR seguindo o padrão:"
+                    echo "  - docs/adr/0001-titulo-descritivo.md"
+                    echo "  - docs/adr/0002-outra-decisao.md"
+                    echo "  - etc."
+                    echo ""
+                    echo "Use o template em docs/adr/0000-template.md para criar novos ADRs."
+                    exit 1
+                  fi
+
+                  echo "✅ ADRs numerados encontrados:"
+                  echo "$ADR_FILES" | while read -r file; do
+                    echo "  - $(basename "$file")"
+                  done
+                  echo ""
+                  echo "Total: $(echo "$ADR_FILES" | wc -l) ADR(s)"
+
+            # -----------------------------------------------------------------------
+            # Step 4: Validar estrutura básica dos ADRs modificados
+            # Verifica se contém seções obrigatórias
+            # -----------------------------------------------------------------------
+            - name: Validate ADR structure
+              run: |
+                  echo "📋 Validando estrutura dos ADRs..."
+                  echo "==================================="
+
+                  # Seções obrigatórias que todo ADR deve conter
+                  REQUIRED_SECTIONS=(
+                    "## Metadados"
+                    "## Contexto"
+                    "## Problema"
+                    "## Decisão"
+                    "## Consequências"
+                  )
+
+                  VALIDATION_FAILED=0
+
+                  # Itera sobre todos os ADRs numerados (exceto template)
+                  for file in docs/adr/[0-9][0-9][0-9][0-9]-*.md; do
+                    # Ignora o template
+                    if [[ "$(basename "$file")" == "0000-template.md" ]]; then
+                      continue
+                    fi
+                    
+                    if [ -f "$file" ]; then
+                      echo ""
+                      echo "📄 Validando: $(basename "$file")"
+                      
+                      FILE_VALID=1
+                      for section in "${REQUIRED_SECTIONS[@]}"; do
+                        if ! grep -q "$section" "$file"; then
+                          echo "  ❌ Seção ausente: $section"
+                          FILE_VALID=0
+                          VALIDATION_FAILED=1
+                        fi
+                      done
+                      
+                      if [ $FILE_VALID -eq 1 ]; then
+                        echo "  ✅ Todas as seções obrigatórias presentes"
+                      fi
+                    fi
+                  done
+
+                  echo ""
+                  if [ $VALIDATION_FAILED -eq 1 ]; then
+                    echo "❌ Validação falhou! Corrija as seções ausentes."
+                    exit 1
+                  else
+                    echo "✅ Todos os ADRs estão estruturalmente válidos!"
+                  fi
+
+            # -----------------------------------------------------------------------
+            # Step 5: Resumo final
+            # -----------------------------------------------------------------------
+            - name: Validation summary
+              run: |
+                  echo ""
+                  echo "======================================"
+                  echo "✅ Validação de ADRs concluída com sucesso!"
+                  echo "======================================"
