@@ -163,22 +163,22 @@ jobs:
           echo "Principle: Accepted ADRs are IMMUTABLE."
           echo "Changes require a new ADR that supersedes the original."
           echo ""
-          
+
           BASE_REF="${{ github.event.pull_request.base.ref }}"
           if [ -z "$BASE_REF" ]; then
             BASE_REF="main"
           fi
-          
+
           MODIFIED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD -- '${{ env.ADR_PATH }}/*.md' 2>/dev/null || echo "")
-          
+
           if [ -z "$MODIFIED_FILES" ]; then
             echo "No ADR files modified in this PR."
             echo "PASSED: Immutability check complete"
             exit 0
           fi
-          
+
           VIOLATIONS=0
-          
+
           for file in $MODIFIED_FILES; do
             filename=$(basename "$file")
             
@@ -201,7 +201,7 @@ jobs:
               echo "OK: $filename (New ADR)"
             fi
           done
-          
+
           if [ $VIOLATIONS -gt 0 ]; then
             echo "========================================"
             echo "FAILED: $VIOLATIONS immutability violation(s)"
@@ -213,7 +213,7 @@ jobs:
             echo "3. Add Supersedes: ADR-NNNN in the new ADR"
             exit 1
           fi
-          
+
           echo "========================================"
           echo "PASSED: No immutability violations"
           echo "========================================"
@@ -283,9 +283,9 @@ jobs:
           echo "========================================"
           echo "Generating ADR Index"
           echo "========================================"
-          
+
           INDEX_FILE="${{ env.ADR_PATH }}/README.md"
-          
+
           cat > "$INDEX_FILE" << 'HEADER'
           # Architecture Decision Records (ADR) Index
 
@@ -298,7 +298,7 @@ jobs:
           | Number | Title | Status |
           |--------|-------|--------|
           HEADER
-          
+
           for file in ${{ env.ADR_PATH }}/[0-9][0-9][0-9][0-9]-*.md; do
             if [ -f "$file" ]; then
               filename=$(basename "$file")
@@ -314,7 +314,7 @@ jobs:
               echo "| [ADR-${number}](${filename}) | ${title} | ${status} |" >> "$INDEX_FILE"
             fi
           done
-          
+
           cat >> "$INDEX_FILE" << 'FOOTER'
 
           ---
@@ -340,7 +340,7 @@ jobs:
 
           *Last updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
           FOOTER
-          
+
           echo "Index generated successfully"
           cat "$INDEX_FILE"
 
@@ -348,9 +348,9 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           git add ${{ env.ADR_PATH }}/README.md
-          
+
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
