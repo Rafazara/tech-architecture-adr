@@ -41,11 +41,11 @@ File `docs/adr/0000-template.md` with complete structure and explanatory comment
 - Consequences, impacts, and trade-offs
 - Implementation plan and success criteria
 
-### 📋 Meta-ADR
+### Meta-ADR
 
 File `docs/adr/0001-adotar-adrs.md` serving as a real example that documents the decision to adopt ADRs itself. Can be adapted to each organization's reality.
 
-### 📚 Index and Guide
+### Index and Guide
 
 File `docs/adr/README.md` with:
 
@@ -54,7 +54,7 @@ File `docs/adr/README.md` with:
 - Lifecycle and status explanation
 - Best practices and conventions
 
-### ⚙️ Validation Workflow
+### Validation Workflow
 
 File `.github/workflows/adr-validation.yml` with GitHub Actions that:
 
