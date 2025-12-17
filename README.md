@@ -30,7 +30,7 @@ Architecture Decision Records are documents that capture significant technical d
 
 This repository includes all artifacts needed to implement ADRs:
 
-### 📄 Official Template
+### Official Template
 
 File `docs/adr/0000-template.md` with complete structure and explanatory comments for each section. Includes:
 
